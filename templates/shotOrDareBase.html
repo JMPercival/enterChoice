@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}style.css">
+	<script type="text/javascript" src="{{STATIC_URL}}/plugins/jquery-2.1.3.js"></script>
+		<title>
+			{% block title %}{% endblock %}
+		</title>
+			<!-- Latest compiled and minified CSS -->
+			<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+			<!-- Optional theme -->
+			<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+			<!-- Latest compiled and minified JavaScript -->
+			<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+		</head>
+	<body>
+		<div class="content">
+			<button type="button" class="btn btn-sm btn-success" id="loadButton">Load!</button>
+			<form action="" method="post">
+				{% csrf_token %}
+				{{ form }}
+				<input type="submit" value="OK" class="btn btn-sm btn-success"/>
+			</form>
+
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>ID</th>
+						<th>Choice</th>
+					</tr>
+				</thead>
+				<tbody class="selectChoice">
+				</tbody>
+			</table>
+			{% block content %}
+			{% endblock %}
+		</div>
+	</body>
+	
+	<script type="text/javascript">
+		var largestId = 0;
+		getChoices();
+		var getChoicesIntervalID = setInterval(getChoices, 3000);
+		var getRollIntervalID = setInterval(getRoll, 3000);
+
+		function loadChoices(choices)
+		{
+			console.log(choices);
+			delete choices['largest'];
+			for(id in choices)
+			{
+				$(".selectChoice").append("".concat("<tr class='choiceID",id,"'><td>",id,"</td><td>",choices[id],"</td></tr>"));
+			}
+			
+		}
+		
+		function getChoices()
+		{
+			$.ajax({
+				url: "checkChoices/",
+				type: "GET",
+				data: {index: largestId},
+				dataType: "json",
+				success: function(dataBack){
+					if(dataBack['largest'] != -1)
+					{
+						largestId = dataBack['largest'];
+					}
+					//console.log(dataBack);
+					loadChoices(dataBack);
+				}
+			});
+		}
+		
+		function loadRoll(randomRoll)
+		{
+			clearInterval(getChoicesIntervalID);
+			clearInterval(getRollIntervalID);
+			var elementsToIterate = [];
+			var count = 0;
+			$("tr[class*='choiceID']").each(function(){
+				elementsToIterate[count]=$(this);
+				count++;
+			});
+			elementsToIterate.splice(randomRoll%elementsToIterate.length,1);
+			for(x=elementsToIterate.length-1;x>=0;x--)
+			{	
+				var toRemove = Math.floor((Math.random() * (x+1)));
+				elementsToIterate[toRemove].delay(x*500).fadeTo(1000,0.001);
+				elementsToIterate.splice(toRemove,1);	
+			}
+			
+			$.ajax({
+				url: "refresh/",
+				type: "GET",
+				success: function(dataBack){
+					if(parseInt(dataBack) != 0){
+						$(".selectChoice").empty();
+					}
+				}
+			});
+		}
+		
+		function getRoll()
+		{
+			$.ajax({
+		            url: "getRoll/",
+					type: "GET",
+	                success: function(dataBack){
+		           		if(parseInt(dataBack)>-1)
+						{
+							loadRoll(dataBack);
+						}
+		            }
+		        });	
+		}
+		
+		$("#loadButton").click(function(){
+			$.ajax({
+				url: "loadRoll/",
+				type: "GET"
+			});
+			
+		});
+	</script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
