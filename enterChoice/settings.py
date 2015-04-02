@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-
+BASE_DIR+='/'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
@@ -58,14 +58,14 @@ WSGI_APPLICATION = 'enterChoice.wsgi.application'
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 
 TEMPLATE_DIRS=(
-    '/var/www/django/enterChoice/templates',
+    BASE_DIR+'templates',
 )
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'NAME': '/var/www/django/enterChoice/enterChoice.sqlite3',
+        'NAME': BASE_DIR+'enterChoice.sqlite3',
     }
 }
 
@@ -88,5 +88,5 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
-    '/var/www/django/enterChoice/static/',
+    BASE_DIR+'static/',
 )
